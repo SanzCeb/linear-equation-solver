@@ -1,6 +1,6 @@
 package solver.equations;
 
-public class StraightLineEquation extends LinearEquation{
+public class StraightLineEquation {
     private final double a;
     private final double b;
     private double x = Double.NaN;
@@ -10,12 +10,15 @@ public class StraightLineEquation extends LinearEquation{
         this.b = b;
     }
 
-    @Override
-    public void solve() {
+    public double getSolution() {
+        if (Double.isNaN(x)) {
+            solve();
+        }
+        return x;
+    }
+
+    private void solve() {
         x = (a == 0) ? Double.POSITIVE_INFINITY : b / a;
     }
 
-    public double getSolution() {
-        return x;
-    }
 }

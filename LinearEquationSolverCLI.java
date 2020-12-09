@@ -23,7 +23,6 @@ public class LinearEquationSolverCLI {
         var e = constants.nextDouble();
         var f = constants.nextDouble();
         var equation = new TwoIntersectingLinesEquation(a, b, c, d, e, f);
-        equation.solve();
         System.out.println (equation.getX() + " " + equation.getY());
     }
 

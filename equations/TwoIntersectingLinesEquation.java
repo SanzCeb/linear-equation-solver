@@ -1,8 +1,8 @@
 package solver.equations;
 
-public class TwoIntersectingLinesEquation  extends LinearEquation{
+public class TwoIntersectingLinesEquation {
     private final double a, b, c, d, e, f;
-    private double x = Double.POSITIVE_INFINITY,  y = Double.POSITIVE_INFINITY;
+    private double x = Double.NaN,  y = Double.NaN;
 
     public TwoIntersectingLinesEquation(double a, double b, double c, double d, double e, double f) {
         this.a = a;
@@ -13,17 +13,29 @@ public class TwoIntersectingLinesEquation  extends LinearEquation{
         this.f = f;
     }
 
-    @Override
-    public void solve() {
-        solveFirstEquation();
-        solveSecondEquation();
+    public double getX() {
+        if (Double.isNaN(y)) {
+            solveFirstEquation();
+        }
+        if (Double.isNaN(x)) {
+            solveSecondEquation();
+        }
+        return x;
+    }
+
+    public double getY() {
+        if (Double.isNaN(y)) {
+            solveFirstEquation();
+        }
+        return y;
     }
 
     private void solveSecondEquation() {
         if (y != Double.POSITIVE_INFINITY) {
             var secondEquation = new StraightLineEquation(a, c - b * y);
-            secondEquation.solve();
             x = secondEquation.getSolution();
+        } else {
+            x = Double.POSITIVE_INFINITY;
         }
     }
 
@@ -33,18 +45,9 @@ public class TwoIntersectingLinesEquation  extends LinearEquation{
             y = f - c * g;
             if (y != 0) {
                 var h = b * g;
-                if (e != h) {
-                    y /= e - h;
-                }
+                y = e != h ? y / (e - h) : Double.POSITIVE_INFINITY;
             }
         }
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
 }
