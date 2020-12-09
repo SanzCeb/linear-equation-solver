@@ -1,5 +1,5 @@
 package solver.equations;
 
-public interface LinearEquation {
-    double solve (double a, double b);
+public abstract class  LinearEquation {
+    abstract void solve ();
 }

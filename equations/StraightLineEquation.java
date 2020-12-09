@@ -1,9 +1,21 @@
 package solver.equations;
 
-public class StraightLineEquation implements LinearEquation{
+public class StraightLineEquation extends LinearEquation{
+    private final double a;
+    private final double b;
+    private double x = Double.NaN;
+
+    public StraightLineEquation(double a, double b) {
+        this.a = a;
+        this.b = b;
+    }
 
     @Override
-    public double solve(double a, double b) {
-        return (a == 0) ? Double.POSITIVE_INFINITY : b / a;
+    public void solve() {
+        x = (a == 0) ? Double.POSITIVE_INFINITY : b / a;
+    }
+
+    public double getSolution() {
+        return x;
     }
 }
