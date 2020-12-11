@@ -17,16 +17,8 @@ public class AugmentedMatrix {
     public AugmentedMatrix getRowEchelonForm() {
         var rowEchelonFormRows = new ArrayList<>(augmentedRows);
         for (int i = 0 ;  i < NUM_ROWS - 1; i++) {
-            var echelonRow = rowEchelonFormRows.get(i);
-            var xi = echelonRow.getEntry(i);
             for (int j = i + 1; j < NUM_ROWS; j++) {
-                var currentAugmentedRow = rowEchelonFormRows.get(j);
-                var entry = currentAugmentedRow.getEntry(i);
-                var scalar = StraightLineEquation.getSolution(xi, -entry); // ax + b = 0
-                AugmentedRow multipliedRow = echelonRow.mulRowByScalar(scalar);
-                AugmentedRow reducedRowEchelonFormRow = currentAugmentedRow.addRow(multipliedRow);
-                rowEchelonFormRows.set(j, reducedRowEchelonFormRow);
-                System.out.printf("R%d + %.4fR%d -> R%d%n",j + 1, scalar, i + 1, j + 1);
+                setCellToZero(i, j, rowEchelonFormRows);
             }
         }
         return new AugmentedMatrix(rowEchelonFormRows);
@@ -41,19 +33,10 @@ public class AugmentedMatrix {
                 .divideRowsByLeadingEntry();
         var reducedRowEchelonFormRows = new ArrayList<>(rowEchelonForm.augmentedRows);
         for (int i = rowEchelonForm.NUM_ROWS - 1;  i > 0; i--) {
-            var echelonRow = reducedRowEchelonFormRows.get(i);
-            var xi = echelonRow.getEntry(i);
             for (int j = i - 1; j >= 0; j--) {
-                var currentAugmentedRow = reducedRowEchelonFormRows.get(j);
-                var entry = currentAugmentedRow.getEntry(i);
-                var scalar = StraightLineEquation.getSolution(xi, -entry); // ax + b = 0
-                AugmentedRow multipliedRow = echelonRow.mulRowByScalar(scalar);
-                AugmentedRow reducedRowEchelonFormRow = currentAugmentedRow.addRow(multipliedRow);
-                reducedRowEchelonFormRows.set(j, reducedRowEchelonFormRow);
-                System.out.printf("R%d + %.4fR%d -> R%d%n",j + 1, scalar, i + 1, j + 1);
+                setCellToZero(i, j, reducedRowEchelonFormRows);
             }
         }
-
         return new AugmentedMatrix(reducedRowEchelonFormRows);
     }
 
@@ -69,4 +52,14 @@ public class AugmentedMatrix {
         return new AugmentedMatrix(dividedRows);
     }
 
+    private static void setCellToZero(int row, int column, ArrayList<AugmentedRow> echelonFormRows) {
+        var echelonRow = echelonFormRows.get(row);
+        var leadingEntry = echelonRow.getEntry(row);
+        var rowWithCellToNullify = echelonFormRows.get(column);
+        var cellToNullify = rowWithCellToNullify.getEntry(row);
+        var scalar = StraightLineEquation.getSolution(leadingEntry, -cellToNullify);
+        AugmentedRow multipliedRow = echelonRow.mulRowByScalar(scalar);
+        AugmentedRow rowWithCellNullified = rowWithCellToNullify.addRow(multipliedRow);
+        echelonFormRows.set(column, rowWithCellNullified);
+    }
 }
