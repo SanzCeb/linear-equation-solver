@@ -1,65 +1,79 @@
 package solver.matrix;
 
-import solver.equations.StraightLineEquation;
-
-import java.util.ArrayList;
+import solver.methods.StraightLineEquationSolver;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class AugmentedMatrix {
-    public final int NUM_ROWS;
-    private final List<AugmentedRow> augmentedRows;
+    public final int NUM_LINEAR_EQUATIONS_COUNT;
+    private final List<LinearEquation> linearEquations;
+    private final int NUM_VARIABLES;
 
-    public AugmentedMatrix(List<AugmentedRow> augmentedRows) {
-        NUM_ROWS = augmentedRows.size();
-        this.augmentedRows = augmentedRows;
+    public AugmentedMatrix(List<LinearEquation> linearEquations, int linearEquationsCount, int variablesCount) {
+        NUM_LINEAR_EQUATIONS_COUNT = linearEquationsCount;
+        this.linearEquations = linearEquations;
+        this.NUM_VARIABLES = variablesCount;
     }
 
-    public AugmentedMatrix getRowEchelonForm() {
-        var rowEchelonFormRows = new ArrayList<>(augmentedRows);
-        for (int i = 0 ;  i < NUM_ROWS - 1; i++) {
-            for (int j = i + 1; j < NUM_ROWS; j++) {
-                setCellToZero(i, j, rowEchelonFormRows);
+    public void calculateRowEchelonForm() {
+        for (int i = 0 ;  i < NUM_LINEAR_EQUATIONS_COUNT - 1; i++) {
+            for (int j = i + 1; j < NUM_LINEAR_EQUATIONS_COUNT; j++) {
+                setCellToZero(i, j, linearEquations);
             }
         }
-        return new AugmentedMatrix(rowEchelonFormRows);
     }
 
-    public AugmentedRow getAugmentedRow(int i) {
-        return augmentedRows.get(i);
+    public LinearEquation getAugmentedRow(int i) {
+        return linearEquations.get(i);
     }
 
-    public AugmentedMatrix getReducedRowEchelonForm() {
-        var rowEchelonForm = getRowEchelonForm()
-                .divideRowsByLeadingEntry();
-        var reducedRowEchelonFormRows = new ArrayList<>(rowEchelonForm.augmentedRows);
-        for (int i = rowEchelonForm.NUM_ROWS - 1;  i > 0; i--) {
+    public List<LinearEquation> getLinearEquations() {return linearEquations; }
+
+    public void calculateReducedRowEchelonForm() {
+        calculateRowEchelonForm();
+        divideRowsByLeadingEntry();
+        for (int i = NUM_LINEAR_EQUATIONS_COUNT - 1;  i > 0; i--) {
             for (int j = i - 1; j >= 0; j--) {
-                setCellToZero(i, j, reducedRowEchelonFormRows);
+                setCellToZero(i, j, linearEquations);
             }
         }
-        return new AugmentedMatrix(reducedRowEchelonFormRows);
     }
 
-    private AugmentedMatrix divideRowsByLeadingEntry() {
-        var dividedRows = new ArrayList<AugmentedRow>();
+    private void divideRowsByLeadingEntry() {
+        var nonNullEquations = significantEquations()
+                .iterator();
 
-        for (var augmentedRow : augmentedRows) {
+        while (nonNullEquations.hasNext()){
+            var augmentedRow = nonNullEquations.next();
             var leadingEntry = augmentedRow.getLeadingEntry();
             var dividedRow = augmentedRow.mulRowByScalar(Math.pow(leadingEntry, -1));
-            dividedRows.add(dividedRow);
+            linearEquations.set(linearEquations.indexOf(augmentedRow), dividedRow);
         }
 
-        return new AugmentedMatrix(dividedRows);
     }
 
-    private static void setCellToZero(int row, int column, ArrayList<AugmentedRow> echelonFormRows) {
+    private static void setCellToZero(int row, int column, List<LinearEquation> echelonFormRows) {
         var echelonRow = echelonFormRows.get(row);
         var leadingEntry = echelonRow.getEntry(row);
         var rowWithCellToNullify = echelonFormRows.get(column);
         var cellToNullify = rowWithCellToNullify.getEntry(row);
-        var scalar = StraightLineEquation.getSolution(leadingEntry, -cellToNullify);
-        AugmentedRow multipliedRow = echelonRow.mulRowByScalar(scalar);
-        AugmentedRow rowWithCellNullified = rowWithCellToNullify.addRow(multipliedRow);
-        echelonFormRows.set(column, rowWithCellNullified);
+        if (leadingEntry != 0 && cellToNullify != 0) {
+            var scalar = StraightLineEquationSolver.getSolution(leadingEntry, -cellToNullify);
+            LinearEquation multipliedRow = echelonRow.mulRowByScalar(scalar);
+            LinearEquation rowWithCellNullified = rowWithCellToNullify.addRow(multipliedRow);
+            echelonFormRows.set(column, rowWithCellNullified);
+        }
+    }
+
+    public boolean hasInfiniteSolutions() {
+        return significantEquations().count() < NUM_VARIABLES;
+    }
+
+    public boolean hasNoSolution() {
+        return linearEquations.stream().anyMatch(LinearEquation::hasNoSolution);
+    }
+
+    private Stream<LinearEquation> significantEquations() {
+        return linearEquations.stream().filter(LinearEquation::isNotNull);
     }
 }

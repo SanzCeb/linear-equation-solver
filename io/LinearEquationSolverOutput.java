@@ -11,9 +11,18 @@ public class LinearEquationSolverOutput {
     public static void writeSolutions(Path out, double[] solutions) {
         System.out.println("The solution is:");
         try {
-            var solutionsStr = Arrays.stream(solutions)
-                    .mapToObj(Double::toString)
-                    .collect(Collectors.joining(System.lineSeparator()));
+            String solutionsStr;
+
+            if (solutions == null) {
+                solutionsStr = "No solutions";
+            } else if (Arrays.stream(solutions).anyMatch(solution -> solution == Double.POSITIVE_INFINITY)) {
+                solutionsStr = "Infinitely many solutions";
+            } else {
+                solutionsStr = Arrays.stream(solutions)
+                        .mapToObj(Double::toString)
+                        .collect(Collectors.joining(System.lineSeparator()));
+            }
+
             System.out.println(solutionsStr);
             Files.deleteIfExists(out);
             Files.writeString(out, solutionsStr, StandardOpenOption.CREATE_NEW);
