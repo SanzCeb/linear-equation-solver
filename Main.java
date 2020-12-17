@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Main {
+
     public static void main(String[] args) {
         Path in = null, out = null;
         for (int i = 0; i < args.length; i += 2) {
@@ -24,11 +25,13 @@ public class Main {
             } else {
                 LinearEquationSolverCLI.run(in, out);
             }
-        }
+    }
+
     }
 
     private static boolean isAnArgument(String arg) {
         return arg.equalsIgnoreCase("-in") ||
                 arg.equalsIgnoreCase("-out");
     }
+
 }

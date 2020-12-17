@@ -1,6 +1,7 @@
 package solver.io;
 
 import solver.matrix.AugmentedMatrix;
+import solver.matrix.ComplexNumberParser;
 import solver.matrix.LinearEquation;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class LinearEquationSolverInput {
             lines.remove(0);
             for (var line : lines) {
                 var equation = Arrays.stream(line.split(" "))
-                        .map(Double::parseDouble)
+                        .map(ComplexNumberParser::parseComplexNumber)
                         .collect(Collectors.toList());
                 augmentedRows.add(new LinearEquation(equation));
             }

@@ -4,44 +4,43 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class LinearEquation {
-    private final List<Double> equation;
-    public LinearEquation(List<Double> equation) {
+    private final List<ComplexNumber> equation;
+    public LinearEquation(List<ComplexNumber> equation) {
         this.equation = equation;
     }
 
-    public double getLeadingEntry() {
+    public ComplexNumber getLeadingEntry() {
         return equation.stream()
                 .limit(equation.size() - 1)
-                .dropWhile(cell -> cell == 0)
+                .dropWhile(ComplexNumber::isZero)
                 .findFirst()
-                .orElse((double) 0);
+                .orElse(ComplexNumber.ZERO);
     }
 
-    public double getConstant() {
+    public ComplexNumber getConstant() {
         return equation.get(equation.size() - 1);
     }
 
     public int numVariables () { return equation.size() - 1;}
 
-    public double getEntry(int j) {
+    public ComplexNumber getEntry(int j) {
         return equation.get(j);
     }
 
-    public LinearEquation mulRowByScalar(double scalar) {
+    public LinearEquation mulRowByScalar(ComplexNumber scalar) {
         return new LinearEquation(equation.stream()
-                .map(cell -> cell * scalar)
+                .map(cell -> cell.mulBy(scalar))
                 .collect(Collectors.toList()));
     }
 
     public LinearEquation addRow(LinearEquation addedRow) {
         var addedCells = addedRow.equation.iterator();
         return new LinearEquation(equation.stream()
-                .map(cell -> cell + addedCells.next())
-                .map(cell -> Math.abs(cell) < 1e-6 ? 0 : cell) //avoids floating errors
+                .map(cell -> cell.add(addedCells.next()))
                 .collect(Collectors.toList()));
     }
 
-    public int getPosition(double entry) {
+    public int getPosition(ComplexNumber entry) {
         return equation.indexOf(entry);
     }
 
@@ -54,17 +53,17 @@ public class LinearEquation {
     public boolean isNotNull() {
         return equation.stream()
                 .limit(equation.size() - 1)
-                .anyMatch(aDouble -> aDouble != 0);
+                .anyMatch(ComplexNumber::isNotZero);
     }
 
     public boolean hasNoSolution() {
         var coefficient = getLeadingEntry();
         var constant = getConstant();
-        return coefficient == 0 && constant != 0;
+        return coefficient.isZero() && constant.isNotZero();
     }
 
     public boolean isNull() {
         return equation.stream()
-                .allMatch(aDouble -> aDouble == 0);
+                .allMatch(ComplexNumber::isZero);
     }
 }

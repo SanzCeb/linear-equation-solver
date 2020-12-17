@@ -2,7 +2,6 @@ package solver.matrix;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.stream.IntStream;
 
 public class LinearEquationsManipulator {
@@ -21,7 +20,7 @@ public class LinearEquationsManipulator {
             var currentEquation = linearEquations.get(i);
             var diagonalIndex = Math.min(i, lastVariableIndex);
             var diagonalEntry = currentEquation.getEntry(diagonalIndex);
-            if (diagonalEntry == 0) {
+            if (diagonalEntry.isZero()) {
                 var firstEquationWithNonZeroColumnOpt = findFirstEquationWithNonZeroColumn(i);
 
                 //if the coefficient is zero, swap the row with one that doesn't have a zero coefficient.
@@ -35,7 +34,7 @@ public class LinearEquationsManipulator {
                     // you should swap that column with the current one
                     var leadingEntry = findFirstNonZeroCoefficientAfterColumn(currentEquation, diagonalIndex);
                     if (leadingEntry.isPresent()) {
-                        var leadingEntryPos = currentEquation.getPosition(leadingEntry.getAsDouble());
+                        var leadingEntryPos = currentEquation.getPosition(leadingEntry.get());
                         swapColumns(i, leadingEntryPos);
                     } else {
                         //If all the coefficients below and to the right of the element are zero,
@@ -47,7 +46,7 @@ public class LinearEquationsManipulator {
                             // you should swap both those row and column so that this non-zero element
                             // is in place of the current element
                             if (bottomEquationLeadingEntry.isPresent()) {
-                                var bottomEquationLeadingEntryPos = anEquationBelow.getPosition(bottomEquationLeadingEntry.getAsDouble());
+                                var bottomEquationLeadingEntryPos = anEquationBelow.getPosition(bottomEquationLeadingEntry.get());
                                 swapEquations(currentEquation, anEquationBelow);
                                 swapColumns(i, bottomEquationLeadingEntryPos);
                             }
@@ -80,14 +79,14 @@ public class LinearEquationsManipulator {
     private Optional<LinearEquation> findFirstEquationWithNonZeroColumn(int row) {
         return IntStream.range(row, linearEquations.size())
                 .mapToObj(linearEquations::get)
-                .filter(linearEquation -> linearEquation.getEntry(row) != 0)
+                .filter(linearEquation -> linearEquation.getEntry(row).isNotZero())
                 .findFirst();
     }
 
-    private OptionalDouble findFirstNonZeroCoefficientAfterColumn(LinearEquation linearEquation, int column) {
+    private Optional<ComplexNumber> findFirstNonZeroCoefficientAfterColumn(LinearEquation linearEquation, int column) {
         return IntStream.rangeClosed(column, lastVariableIndex)
-                .mapToDouble(linearEquation::getEntry)
-                .filter(entry -> entry != 0)
+                .mapToObj(linearEquation::getEntry)
+                .filter(ComplexNumber::isNotZero)
                 .findFirst();
     }
 

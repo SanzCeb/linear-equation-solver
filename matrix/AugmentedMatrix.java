@@ -46,7 +46,7 @@ public class AugmentedMatrix {
         while (nonNullEquations.hasNext()){
             var augmentedRow = nonNullEquations.next();
             var leadingEntry = augmentedRow.getLeadingEntry();
-            var dividedRow = augmentedRow.mulRowByScalar(Math.pow(leadingEntry, -1));
+            var dividedRow = augmentedRow.mulRowByScalar(ComplexNumber.ONE.divBy(leadingEntry));
             linearEquations.set(linearEquations.indexOf(augmentedRow), dividedRow);
         }
 
@@ -57,8 +57,8 @@ public class AugmentedMatrix {
         var leadingEntry = echelonRow.getEntry(row);
         var rowWithCellToNullify = echelonFormRows.get(column);
         var cellToNullify = rowWithCellToNullify.getEntry(row);
-        if (leadingEntry != 0 && cellToNullify != 0) {
-            var scalar = StraightLineEquationSolver.getSolution(leadingEntry, -cellToNullify);
+        if (leadingEntry.isNotZero() && cellToNullify.isNotZero()) {
+            var scalar = StraightLineEquationSolver.getSolution(leadingEntry, cellToNullify.neg());
             LinearEquation multipliedRow = echelonRow.mulRowByScalar(scalar);
             LinearEquation rowWithCellNullified = rowWithCellToNullify.addRow(multipliedRow);
             echelonFormRows.set(column, rowWithCellNullified);

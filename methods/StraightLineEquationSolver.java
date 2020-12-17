@@ -1,7 +1,10 @@
 package solver.methods;
 
+import solver.matrix.ComplexNumber;
+
 public class StraightLineEquationSolver {
-    public static double getSolution(double a, double b) {
-        return (a == 0) ? Double.POSITIVE_INFINITY : b / a;
+    public static ComplexNumber getSolution(ComplexNumber a, ComplexNumber b) {
+        return (a.isZero()) ? ComplexNumber.POSITIVE_INFINITY : b.divBy(a);
     }
+
 }

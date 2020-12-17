@@ -1,11 +1,12 @@
 package solver.methods;
 
 import solver.matrix.AugmentedMatrix;
+import solver.matrix.ComplexNumber;
 import solver.matrix.LinearEquationsManipulator;
 
 
 public class GaussianJordanElimination {
-    public static double[] getSolutions(AugmentedMatrix augmentedMatrix) {
+    public static ComplexNumber[] getSolutions(AugmentedMatrix augmentedMatrix) {
         LinearEquationsManipulator linearEquationsManipulator;
         var linearEquations = augmentedMatrix.getLinearEquations();
         int numVariables = linearEquations.size() > 0 ? linearEquations.get(0).numVariables() : 0;
@@ -13,13 +14,13 @@ public class GaussianJordanElimination {
         linearEquationsManipulator.manipulateEquations();
         augmentedMatrix.calculateReducedRowEchelonForm();
         linearEquationsManipulator.restoreEquations();
-        var output = new double[numVariables];
+        var output = new ComplexNumber[numVariables];
 
         if (augmentedMatrix.hasNoSolution()) {
             return null;
         }
         if (augmentedMatrix.hasInfiniteSolutions()) {
-                return new double[]{Double.POSITIVE_INFINITY};
+                return new ComplexNumber[]{ComplexNumber.POSITIVE_INFINITY};
         }
 
         for (int i = augmentedMatrix.NUM_LINEAR_EQUATIONS_COUNT - 1; i >= 0; i--) {
